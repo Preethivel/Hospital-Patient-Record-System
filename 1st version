@@ -15,6 +15,7 @@ class Hospital:
     def __init__(self):
         self.patients = []
     
+    
     def add(self):
         print("\n--- ADD PATIENT ---")
         while True:
@@ -39,6 +40,7 @@ class Hospital:
         self.patients.append(Patient(pid, name, age, gender, disease, contact, date))
         print("✅ Patient added!")
     
+    
     def view_all(self):
         print("\n--- ALL PATIENTS ---")
         if len(self.patients) == 0:
@@ -48,7 +50,51 @@ class Hospital:
         while i < len(self.patients):
             self.patients[i].display()
             i += 1
+
+
+    def search(self):
+        print("\n--- SEARCH PATIENT ---")
+        pid = input("Enter ID to search: ")
+        i = 0
+        found = False
+        while i < len(self.patients):
+            if self.patients[i].pid == pid:
+                self.patients[i].display()
+                found = True
+                break
+            i += 1
+        if not found:
+            print("Not found!")
     
+    
+    def update(self):
+        print("\n--- UPDATE PATIENT ---")
+        pid = input("Enter ID to update: ")
+        i = 0
+        found = False
+        while i < len(self.patients):
+            if self.patients[i].pid == pid:
+                found = True
+                print("Current:", end=" ")
+                self.patients[i].display()
+                name = input(f"Name ({self.patients[i].name}): ")
+                if name: self.patients[i].name = name
+                age = input(f"Age ({self.patients[i].age}): ")
+                if age: self.patients[i].age = age
+                gender = input(f"Gender ({self.patients[i].gender}): ")
+                if gender: self.patients[i].gender = gender
+                disease = input(f"Disease ({self.patients[i].disease}): ")
+                if disease: self.patients[i].disease = disease
+                contact = input(f"Contact ({self.patients[i].contact}): ")
+                if contact: self.patients[i].contact = contact
+                date = input(f"Date ({self.patients[i].date}): ")
+                if date: self.patients[i].date = date
+                print("✅ Updated!")
+                break
+            i += 1
+        if not found:
+            print("Not found!")
+
     def menu(self):
         while True:
             print("\n" + "="*40)
@@ -56,11 +102,15 @@ class Hospital:
             print("="*40)
             print("1. Add")
             print("2. View All")
-            print("3. Exit")
-            choice = input("Enter choice (1-3): ")
+            print("3. Search")
+            print("4. Update")
+            print("5. Exit")
+            choice = input("Enter choice (1-5): ")
             if choice == '1': self.add()
             elif choice == '2': self.view_all()
-            elif choice == '3': 
+            elif choice == '3': self.search()
+            elif choice == '4': self.update()
+            elif choice == '5': 
                 print("Goodbye!")
                 break
             else:
