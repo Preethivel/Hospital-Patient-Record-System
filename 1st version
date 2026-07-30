@@ -1,3 +1,5 @@
+# HOSPITAL PATIENT RECORD SYSTEM - Week 1
+
 class Patient:
     def __init__(self, pid, name, age, gender, disease, contact, date):
         self.pid = pid
@@ -11,47 +13,150 @@ class Patient:
     def display(self):
         print(f"{self.pid} | {self.name} | {self.age} | {self.gender} | {self.disease} | {self.contact} | {self.date}")
 
+
 class Hospital:
     def __init__(self):
         self.patients = []
     
+    # ========== VALIDATIONS ==========
     
+    # Check if name contains only alphabets and spaces
+    def valid_name(self, name):
+        i = 0
+        while i < len(name):
+            ch = name[i]
+            if not ((ch >= 'A' and ch <= 'Z') or (ch >= 'a' and ch <= 'z') or ch == ' '):
+                return False, "Name must contain only alphabets"
+            i = i + 1
+        if len(name.strip()) == 0:
+            return False, "Name cannot be empty"
+        return True, name
+    
+    # Check if age is number and >= 0
+    def valid_age(self, age):
+        if age.isdigit():
+            a = int(age)
+            if a >= 0:
+                return True, a
+            else:
+                return False, "Age cannot be negative"
+        else:
+            return False, "Age must be a number"
+    
+    # Check if phone is exactly 10 digits
+    def valid_phone(self, phone):
+        if phone.isdigit():
+            if len(phone) == 10:
+                return True, phone
+            else:
+                return False, "Phone must be 10 digits"
+        else:
+            return False, "Phone must contain only digits"
+    
+    # Check if date is DD/MM/YYYY format
+    def valid_date(self, date):
+        parts = date.split('/')
+        if len(parts) == 3:
+            day = parts[0]
+            month = parts[1]
+            year = parts[2]
+            if day.isdigit() and month.isdigit() and year.isdigit():
+                d = int(day)
+                m = int(month)
+                y = int(year)
+                if d >= 1 and d <= 31:
+                    if m >= 1 and m <= 12:
+                        if y >= 1900 and y <= 2100:
+                            return True, date
+        return False, "Use DD/MM/YYYY (eg: 25/12/2024)"
+    
+    # ========== CREATE ==========
     def add(self):
         print("\n--- ADD PATIENT ---")
+        
+        # Get ID with duplicate check
         while True:
             pid = input("Enter ID: ")
-            dup = False
             i = 0
+            found = False
             while i < len(self.patients):
                 if self.patients[i].pid == pid:
-                    dup = True
+                    found = True
                     break
-                i += 1
-            if dup:
+                i = i + 1
+            if found:
                 print("ID already exists!")
             else:
                 break
-        name = input("Enter Name: ")
-        age = input("Enter Age: ")
-        gender = input("Enter Gender: ")
+        
+        # Name validation (alphabets only)
+        while True:
+            name = input("Enter Name: ")
+            valid, result = self.valid_name(name)
+            if valid:
+                name = result
+                break
+            else:
+                print(result)
+        
+        # Age validation
+        while True:
+            age = input("Enter Age: ")
+            valid, result = self.valid_age(age)
+            if valid:
+                age = str(result)
+                break
+            else:
+                print(result)
+        
+        # Gender validation
+        while True:
+            gender = input("Enter Gender (Male/Female/Others): ")
+            if gender == "Male" or gender == "Female" or gender == "Others":
+                break
+            elif gender == "male" or gender == "female" or gender == "others":
+                gender = gender.capitalize()
+                break
+            else:
+                print("Invalid! Use Male/Female/Others")
+        
         disease = input("Enter Disease: ")
-        contact = input("Enter Contact: ")
-        date = input("Enter Date: ")
+        
+        # Phone validation
+        while True:
+            contact = input("Enter Phone (10 digits): ")
+            valid, result = self.valid_phone(contact)
+            if valid:
+                contact = result
+                break
+            else:
+                print(result)
+        
+        # Date validation
+        while True:
+            date = input("Enter Date (DD/MM/YYYY): ")
+            valid, result = self.valid_date(date)
+            if valid:
+                date = result
+                break
+            else:
+                print(result)
+        
         self.patients.append(Patient(pid, name, age, gender, disease, contact, date))
-        print("✅ Patient added!")
+        print("Patient added!")
     
-    
+    # ========== READ ==========
     def view_all(self):
         print("\n--- ALL PATIENTS ---")
         if len(self.patients) == 0:
-            print("No patients!")
+            print("No patients found!")
             return
         i = 0
         while i < len(self.patients):
             self.patients[i].display()
-            i += 1
-
-
+            i = i + 1
+    
+    # ========== SEARCH ==========
     def search(self):
         print("\n--- SEARCH PATIENT ---")
         pid = input("Enter ID to search: ")
@@ -62,11 +167,11 @@ class Hospital:
                 self.patients[i].display()
                 found = True
                 break
-            i += 1
+            i = i + 1
         if not found:
-            print("Not found!")
+            print("Patient not found!")
     
-    
+    # ========== UPDATE ==========
     def update(self):
         print("\n--- UPDATE PATIENT ---")
         pid = input("Enter ID to update: ")
@@ -75,47 +180,136 @@ class Hospital:
         while i < len(self.patients):
             if self.patients[i].pid == pid:
                 found = True
-                print("Current:", end=" ")
+                print("Current details:")
                 self.patients[i].display()
-                name = input(f"Name ({self.patients[i].name}): ")
-                if name: self.patients[i].name = name
-                age = input(f"Age ({self.patients[i].age}): ")
-                if age: self.patients[i].age = age
-                gender = input(f"Gender ({self.patients[i].gender}): ")
-                if gender: self.patients[i].gender = gender
-                disease = input(f"Disease ({self.patients[i].disease}): ")
-                if disease: self.patients[i].disease = disease
-                contact = input(f"Contact ({self.patients[i].contact}): ")
-                if contact: self.patients[i].contact = contact
-                date = input(f"Date ({self.patients[i].date}): ")
-                if date: self.patients[i].date = date
-                print("✅ Updated!")
+                
+                # Name validation
+                while True:
+                    name = input("Enter new Name (press Enter to skip): ")
+                    if name == "":
+                        break
+                    valid, result = self.valid_name(name)
+                    if valid:
+                        self.patients[i].name = result
+                        break
+                    else:
+                        print(result)
+                
+                # Age validation
+                while True:
+                    age = input("Enter new Age (press Enter to skip): ")
+                    if age == "":
+                        break
+                    valid, result = self.valid_age(age)
+                    if valid:
+                        self.patients[i].age = str(result)
+                        break
+                    else:
+                        print(result)
+                
+                # Gender validation
+                while True:
+                    gender = input("Enter new Gender (press Enter to skip): ")
+                    if gender == "":
+                        break
+                    if gender == "Male" or gender == "Female" or gender == "Others":
+                        self.patients[i].gender = gender
+                        break
+                    elif gender == "male" or gender == "female" or gender == "others":
+                        self.patients[i].gender = gender.capitalize()
+                        break
+                    else:
+                        print("Invalid! Use Male/Female/Others")
+                
+                disease = input("Enter new Disease (press Enter to skip): ")
+                if disease != "":
+                    self.patients[i].disease = disease
+                
+                # Phone validation
+                while True:
+                    contact = input("Enter new Phone (press Enter to skip): ")
+                    if contact == "":
+                        break
+                    valid, result = self.valid_phone(contact)
+                    if valid:
+                        self.patients[i].contact = result
+                        break
+                    else:
+                        print(result)
+                
+                # Date validation
+                while True:
+                    date = input("Enter new Date (press Enter to skip): ")
+                    if date == "":
+                        break
+                    valid, result = self.valid_date(date)
+                    if valid:
+                        self.patients[i].date = result
+                        break
+                    else:
+                        print(result)
+                
+                print("Patient updated successfully!")
                 break
-            i += 1
+            i = i + 1
         if not found:
-            print("Not found!")
-
+            print("Patient not found!")
+    
+    # ========== DELETE ==========
+    def delete(self):
+        print("\n--- DELETE PATIENT ---")
+        pid = input("Enter ID to delete: ")
+        i = 0
+        found = False
+        while i < len(self.patients):
+            if self.patients[i].pid == pid:
+                found = True
+                self.patients[i].display()
+                confirm = input("Are you sure you want to delete? (y/n): ")
+                if confirm == "y" or confirm == "Y" or confirm == "yes":
+                    del self.patients[i]
+                    print("Patient deleted successfully!")
+                else:
+                    print("Deletion cancelled!")
+                break
+            i = i + 1
+        if not found:
+            print("Patient not found!")
+    
+    # ========== MENU ==========
     def menu(self):
         while True:
             print("\n" + "="*40)
             print("HOSPITAL SYSTEM")
             print("="*40)
-            print("1. Add")
-            print("2. View All")
-            print("3. Search")
-            print("4. Update")
-            print("5. Exit")
-            choice = input("Enter choice (1-5): ")
-            if choice == '1': self.add()
-            elif choice == '2': self.view_all()
-            elif choice == '3': self.search()
-            elif choice == '4': self.update()
-            elif choice == '5': 
+            print("1. Add Patient")
+            print("2. View All Patients")
+            print("3. Search Patient")
+            print("4. Update Patient")
+            print("5. Delete Patient")
+            print("6. Exit")
+            
+            choice = input("Enter your choice (1-6): ")
+            
+            if choice == "1":
+                self.add()
+            elif choice == "2":
+                self.view_all()
+            elif choice == "3":
+                self.search()
+            elif choice == "4":
+                self.update()
+            elif choice == "5":
+                self.delete()
+            elif choice == "6":
                 print("Goodbye!")
                 break
             else:
-                print("Invalid!")
+                print("Invalid choice!")
 
+
+# ========== RUN ==========
 if __name__ == "__main__":
+    print("WELCOME TO HOSPITAL SYSTEM")
     h = Hospital()
     h.menu()
